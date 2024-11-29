@@ -9,6 +9,7 @@ class SCSTransaction {
     public chainId: number;
     public nonce: number;
     public value: bigint;
+    // public data: string;
     public maxPriorityFeePerGas: number;
     public maxFeePerGas: number;
     public gasLimit: number;
@@ -101,14 +102,22 @@ export class Airdrop {
      * @returns 返回签名后的交易
      */
     async getEthersTransaction(nonce: number | null, value: bigint, to: string): Promise<SCSTransaction> {
+        
+        // Memo 字符串
+        const memo = "This is a memo message!";
+
+        // 编码 memo 为字节数组
+        const memoData = Buffer.from(memo, "utf8");
+        console.log("memoData: ", memoData);
         const tx = {
             nonce: nonce, 
             to: to, 
             value:value,
-            gasLimit: 21000, 
+            data: "0x" + memoData.toString("hex"),
+            gasLimit: 210000, 
             maxPriorityFeePerGas: 500000000,
             maxFeePerGas: 500000000,
-            data: "0x",
+            // data: "0x",
         };
         // 创建以太坊的签名交易 （为了给波卡交易获取参数）
         const pop = await this.ethersWallet.populateTransaction(tx);
@@ -116,12 +125,14 @@ export class Airdrop {
         const txObj = Transaction.from(pop);
         const signTransaction = await this.ethersWallet.signTransaction(txObj);
         const t = Transaction.from(signTransaction).toJSON();
+        console.log("signTransaction: \n", t);
 
         let scsTransaction = new SCSTransaction();
         const v = t["sig"]["v"];
         scsTransaction.chainId = t["chainId"];
         scsTransaction.nonce = t["nonce"];
         scsTransaction.value = t["value"];
+        // scsTransaction.data = t["data"];
         scsTransaction.maxPriorityFeePerGas =t["maxPriorityFeePerGas"];
         scsTransaction.maxFeePerGas = t["maxFeePerGas"];
         scsTransaction.gasLimit = t["gasLimit"];
