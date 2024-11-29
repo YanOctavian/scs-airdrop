@@ -33,6 +33,8 @@ export class Airdrop {
     private pokadotProvider: HttpProvider;
     private nonce: number;
     private polkadotPair;
+    // 从空投列表中谁开始 （地址是唯一）
+    // private startAccount: string | null;
     // private address: string;
 
     constructor(privateKey: string, url: string) {
@@ -55,7 +57,7 @@ export class Airdrop {
     }
     
 
-    async run(accounts: Account[]) {
+    async run(accounts: Account[], startAccount: string | null) {
         
         this.nonce = await this.getNonce(this.polkadotPair.address);
         console.log("准备空投的nonce值是: ", this.nonce);
@@ -63,14 +65,22 @@ export class Airdrop {
         let ss = [];
         const addrees1 = "0x93A3A1c3dbccdbA8Df744a97f4Cc702e2F8663D1".toLowerCase();
         const address2 = "0x8B3f123cf9F3b2E147142d3e99396695c09A34E7".toLowerCase();
-
+        let isStart = startAccount === null ? true: false;
+        
         for (const v of accounts) {
-            if (v.to === "" || v.value === "0" || v.to === addrees1 || v.to == address2){
-                continue;
+            if (startAccount == v.to && startAccount != null && isStart == false) {
+                isStart = true
             }
-            // nonce值要递增 这样提交才不会出错  不要在这里搞并发
-            await this.send(this.nonce, v.to, v.value);
-            this.nonce += 1;
+
+            if (isStart) {
+                if (v.to === "" || v.value === "0" || v.to === addrees1 || v.to == address2){
+                    continue;
+                }
+                // nonce值要递增 这样提交才不会出错  不要在这里搞并发
+                await this.send(this.nonce, v.to, v.value);
+                this.nonce += 1;
+            }
+
         }
     }
 
