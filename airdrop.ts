@@ -33,9 +33,6 @@ export class Airdrop {
     private pokadotProvider: HttpProvider;
     private nonce: number;
     private polkadotPair;
-    // 从空投列表中谁开始 （地址是唯一）
-    // private startAccount: string | null;
-    // private address: string;
 
     constructor(privateKey: string, url: string) {
         this.privateKey = privateKey;
@@ -66,11 +63,8 @@ export class Airdrop {
         const addrees1 = "0x93A3A1c3dbccdbA8Df744a97f4Cc702e2F8663D1".toLowerCase();
         const address2 = "0x8B3f123cf9F3b2E147142d3e99396695c09A34E7".toLowerCase();
         let isStart = startAccount === null ? true: false;
-        
+
         for (const v of accounts) {
-            if (startAccount == v.to && startAccount != null && isStart == false) {
-                isStart = true
-            }
 
             if (isStart) {
                 if (v.to === "" || v.value === "0" || v.to === addrees1 || v.to == address2){
@@ -79,6 +73,10 @@ export class Airdrop {
                 // nonce值要递增 这样提交才不会出错  不要在这里搞并发
                 await this.send(this.nonce, v.to, v.value);
                 this.nonce += 1;
+            }
+
+            if (startAccount == v.to && startAccount != null && isStart == false) {
+                isStart = true
             }
 
         }
