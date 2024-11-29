@@ -104,8 +104,7 @@ export class Airdrop {
     async getEthersTransaction(nonce: number | null, value: bigint, to: string): Promise<SCSTransaction> {
         
         // Memo 字符串
-        const memo = "This is a memo message!";
-
+        const memo = "SuperEx's Airdrop";
         // 编码 memo 为字节数组
         const memoData = Buffer.from(memo, "utf8");
         console.log("memoData: ", memoData);
